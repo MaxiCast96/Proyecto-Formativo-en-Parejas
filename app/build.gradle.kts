@@ -37,6 +37,7 @@ android {
 
 dependencies {
 
+    implementation("com.oracle.database.jdbc:ojdbc6:11.2.0.4")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
