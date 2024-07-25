@@ -1,4 +1,4 @@
-package guillermo.chavez.proyecto_formativo_parejas
+package guillermo.luis.proyecto_formativo_perjeas
 
 import org.junit.Test
 

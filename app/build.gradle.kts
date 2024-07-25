@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "guillermo.chavez.proyecto_formativo_parejas"
+    namespace = "guillermo.luis.proyecto_formativo_perjeas"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "guillermo.chavez.proyecto_formativo_parejas"
+        applicationId = "guillermo.luis.proyecto_formativo_perjeas"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

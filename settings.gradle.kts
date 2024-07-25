@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Proyecto_Formativo_Parejas"
+rootProject.name = "Proyecto_Formativo_Perjeas"
 include(":app")
  

@@ -1,4 +1,4 @@
-package guillermo.chavez.proyecto_formativo_parejas
+package guillermo.luis.proyecto_formativo_perjeas
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("guillermo.chavez.proyecto_formativo_parejas", appContext.packageName)
+        assertEquals("guillermo.luis.proyecto_formativo_perjeas", appContext.packageName)
     }
 }
