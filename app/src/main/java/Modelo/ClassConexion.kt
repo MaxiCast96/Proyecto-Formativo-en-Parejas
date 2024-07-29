@@ -11,6 +11,7 @@ class ClassConexion {
             val contrasena = "holacanola123"
 
             val conexion = DriverManager.getConnection(ip, usuario, contrasena)
+            println("Conectado con la base de datos")
             return conexion
         } catch (e: Exception) {
             println("El error es este: $e")
