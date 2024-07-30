@@ -1,7 +1,5 @@
 
-# Proyecto Formativo PERJEAS
-
-Bienvenido a la documentación del proyecto formativo PERJEAS. Este proyecto incluye la gestión de pacientes y medicamentos utilizando una base de datos relacional. A continuación, se detallan las estructuras de las tablas y algunos ejemplos de inserciones de datos.
+# Proyecto Formativo en parejas
 
 ## Base de Datos
 
