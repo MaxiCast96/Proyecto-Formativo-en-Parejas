@@ -26,13 +26,16 @@ class MainActivity : AppCompatActivity() {
         rcvPacientes = findViewById(R.id.rcvPacientes)
         rcvPacientes.layoutManager = LinearLayoutManager(this)
 
-        actualizarRecyclerView()
-
-        val btnAgregar= findViewById<FloatingActionButton>(R.id.btnAddPaciente)
+        val btnAgregar = findViewById<FloatingActionButton>(R.id.btnAddPaciente)
         btnAgregar.setOnClickListener {
             val intent = Intent(this, Activity_Paciente::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        actualizarRecyclerView()
     }
 
     private fun actualizarRecyclerView() {
@@ -40,7 +43,8 @@ class MainActivity : AppCompatActivity() {
             val pacientes = obtenerDatos()
 
             withContext(Dispatchers.Main) {
-                pacienteAdapter = PacienteAdapter(pacientes,
+                pacienteAdapter = PacienteAdapter(
+                    pacientes,
                     onPacienteClick = { paciente ->
                         val intent = Intent(this@MainActivity, activity_detalleCliente::class.java).apply {
                             putExtra("paciente", paciente)
@@ -60,6 +64,9 @@ class MainActivity : AppCompatActivity() {
                             putExtra("id_medicamento", paciente.idMedicamento)
                         }
                         startActivity(intent)
+                    },
+                    onBorrarClick = { paciente ->
+                        eliminarPaciente(paciente.id)
                     }
                 )
                 rcvPacientes.adapter = pacienteAdapter
@@ -101,5 +108,37 @@ class MainActivity : AppCompatActivity() {
         }
 
         return pacientes
+    }
+
+    private fun eliminarPaciente(idPaciente: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val connection = ClassConexion().cadenaConexion()
+
+            connection?.let {
+                try {
+                    val deletePacienteSQL = "DELETE FROM Pacientes WHERE id_paciente = ?"
+                    val preparedStatement = it.prepareStatement(deletePacienteSQL)
+                    preparedStatement.setString(1, idPaciente)
+
+                    val rowsAffected = preparedStatement.executeUpdate()
+                    preparedStatement.close()
+                    it.close()
+
+                    withContext(Dispatchers.Main) {
+                        if (rowsAffected > 0) {
+                            Toast.makeText(this@MainActivity, "Paciente eliminado exitosamente", Toast.LENGTH_SHORT).show()
+                            actualizarRecyclerView()  // Actualizar el RecyclerView después de eliminar
+                        } else {
+                            Toast.makeText(this@MainActivity, "Error al eliminar el paciente", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Error al eliminar el paciente", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
     }
 }

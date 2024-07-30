@@ -1,7 +1,6 @@
 package guillermo.luis.proyecto_formativo_perjeas
 
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +29,6 @@ class Activity_Paciente : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_paciente)
 
-        // Initialize views
         etNombres = findViewById(R.id.etNombres)
         etApellidos = findViewById(R.id.etApellidos)
         etEdad = findViewById(R.id.etEdad)
@@ -54,8 +52,20 @@ class Activity_Paciente : AppCompatActivity() {
             showDatePickerDialog()
         }
 
-        buttonAgregar.setOnClickListener {
-            updatePacienteInDatabase()
+        if (pacienteId == null) {
+            buttonAgregar.text = "Añadir"
+            buttonAgregar.setOnClickListener {
+                if (validarDatos()) {
+                    addPacienteToDatabase()
+                }
+            }
+        } else {
+            buttonAgregar.text = "Actualizar"
+            buttonAgregar.setOnClickListener {
+                if (validarDatos()) {
+                    updatePacienteInDatabase()
+                }
+            }
         }
 
         loadMedicamentos()
@@ -110,6 +120,7 @@ class Activity_Paciente : AppCompatActivity() {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 spMedicamento.adapter = adapter
 
+                // Seleccionar el medicamento adecuado si hay uno disponible
                 val idMedicamento = intent.getIntExtra("id_medicamento", -1)
                 val position = medicamentos.indexOfFirst { it.first == idMedicamento }
                 if (position >= 0) {
@@ -119,15 +130,82 @@ class Activity_Paciente : AppCompatActivity() {
         }
     }
 
+    private fun validarDatos(): Boolean {
+        val nombres = etNombres.text.toString().trim()
+        val apellidos = etApellidos.text.toString().trim()
+        val edad = etEdad.text.toString().trim().toIntOrNull()
+        val enfermedad = etEnfermedad.text.toString().trim()
+        val numeroHabitacion = etNumeroHabitacion.text.toString().trim().toIntOrNull()
+        val numeroCama = etNumeroCama.text.toString().trim().toIntOrNull()
+        val fechaNacimiento = etFechaNacimiento.text.toString().trim()
+
+        if (nombres.isEmpty() || apellidos.isEmpty() || edad == null || edad <= 0 || enfermedad.isEmpty() ||
+            numeroHabitacion == null || numeroHabitacion <= 0 || numeroCama == null || numeroCama <= 0 || fechaNacimiento.isEmpty()) {
+            Toast.makeText(this, "Por favor, complete todos los campos correctamente", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
+
+    private fun addPacienteToDatabase() {
+        val idPaciente = UUID.randomUUID().toString()
+        val nombres = etNombres.text.toString()
+        val apellidos = etApellidos.text.toString()
+        val edad = etEdad.text.toString().toInt()
+        val enfermedad = etEnfermedad.text.toString()
+        val numeroHabitacion = etNumeroHabitacion.text.toString().toInt()
+        val numeroCama = etNumeroCama.text.toString().toInt()
+        val fechaNacimiento = etFechaNacimiento.text.toString()
+        val idMedicamento = spMedicamento.selectedItemPosition + 1
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val connection = ClassConexion().cadenaConexion()
+
+            connection?.let {
+                try {
+                    val insertPacienteSQL = """
+                    INSERT INTO Pacientes (id_paciente, nombres, apellidos, edad, enfermedad, numero_habitacion, numero_cama, fecha_nacimiento, id_medicamento)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """
+                    val preparedStatement: PreparedStatement = it.prepareStatement(insertPacienteSQL)
+                    preparedStatement.setString(1, idPaciente)
+                    preparedStatement.setString(2, nombres)
+                    preparedStatement.setString(3, apellidos)
+                    preparedStatement.setInt(4, edad)
+                    preparedStatement.setString(5, enfermedad)
+                    preparedStatement.setInt(6, numeroHabitacion)
+                    preparedStatement.setInt(7, numeroCama)
+                    preparedStatement.setString(8, fechaNacimiento)
+                    preparedStatement.setInt(9, idMedicamento)
+
+                    preparedStatement.executeUpdate()
+                    preparedStatement.close()
+
+                    it.close()
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@Activity_Paciente, "Paciente añadido exitosamente", Toast.LENGTH_SHORT).show()
+                        finish()  // Cierra la actividad y regresa a la anterior
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@Activity_Paciente, "Error al añadir el paciente", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
     private fun updatePacienteInDatabase() {
         val nombres = etNombres.text.toString()
         val apellidos = etApellidos.text.toString()
-        val edad = etEdad.text.toString().toIntOrNull() ?: 0
+        val edad = etEdad.text.toString().toInt()
         val enfermedad = etEnfermedad.text.toString()
-        val numeroHabitacion = etNumeroHabitacion.text.toString().toIntOrNull() ?: 0
-        val numeroCama = etNumeroCama.text.toString().toIntOrNull() ?: 0
+        val numeroHabitacion = etNumeroHabitacion.text.toString().toInt()
+        val numeroCama = etNumeroCama.text.toString().toInt()
         val fechaNacimiento = etFechaNacimiento.text.toString()
-        val idMedicamento = (spMedicamento.selectedItemPosition + 1)
+        val idMedicamento = spMedicamento.selectedItemPosition + 1
 
         CoroutineScope(Dispatchers.IO).launch {
             val connection = ClassConexion().cadenaConexion()
@@ -157,7 +235,7 @@ class Activity_Paciente : AppCompatActivity() {
 
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@Activity_Paciente, "Paciente actualizado exitosamente", Toast.LENGTH_SHORT).show()
-                        finish()
+                        finish()  // Cierra la actividad y regresa a la anterior
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

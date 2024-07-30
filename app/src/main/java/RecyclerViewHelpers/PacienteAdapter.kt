@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 class PacienteAdapter(
     private val pacientes: List<ListaPacientes>,
     private val onPacienteClick: (ListaPacientes) -> Unit,
-    private val onEditarClick: (ListaPacientes) -> Unit
+    private val onEditarClick: (ListaPacientes) -> Unit,
+    private val onBorrarClick: (ListaPacientes) -> Unit
 ) : RecyclerView.Adapter<PacienteAdapter.PacienteViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PacienteViewHolder {
@@ -21,7 +22,7 @@ class PacienteAdapter(
 
     override fun onBindViewHolder(holder: PacienteViewHolder, position: Int) {
         val paciente = pacientes[position]
-        holder.bind(paciente, onPacienteClick, onEditarClick)
+        holder.bind(paciente, onPacienteClick, onEditarClick, onBorrarClick)
     }
 
     override fun getItemCount(): Int = pacientes.size
@@ -29,11 +30,14 @@ class PacienteAdapter(
     class PacienteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvNombre: TextView = itemView.findViewById(R.id.tv_nombre)
         private val btnEditar: View = itemView.findViewById(R.id.btn_editar)
+        private val btnBorrar: View = itemView.findViewById(R.id.btn_borrar)
 
-        fun bind(paciente: ListaPacientes, onPacienteClick: (ListaPacientes) -> Unit, onEditarClick: (ListaPacientes) -> Unit) {
+        fun bind(paciente: ListaPacientes, onPacienteClick: (ListaPacientes) -> Unit, onEditarClick: (ListaPacientes) -> Unit, onBorrarClick: (ListaPacientes) -> Unit) {
             tvNombre.text = "${paciente.nombres} ${paciente.apellidos}"
             tvNombre.setOnClickListener { onPacienteClick(paciente) }
             btnEditar.setOnClickListener { onEditarClick(paciente) }
+            btnBorrar.setOnClickListener { onBorrarClick(paciente) }
         }
     }
 }
+
